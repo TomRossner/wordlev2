@@ -40,11 +40,19 @@ function App() {
   const handleKeyDown = (ev) => {
       if (/^[a-zA-Z]$/.test(ev.key) && ev.key.length === 1) {
           return addLetter(ev.key);
-      } else if (ev.key.length > 1 && ev.key.toLowerCase() === 'enter' && currentTileIndex === WORD_LENGTH) {
-          return checkRow(currentRowIndex);
+      } else if (ev.key.length > 1 && ev.key.toLowerCase() === 'enter') {
+        return handleEnterKey();
       } else if (ev.key.length > 1 && ev.key.toLowerCase() === 'backspace') {
           return deleteLetter();
       }
+  }
+
+  const handleEnterKey = () => {
+    if (currentTileIndex === WORD_LENGTH) {
+        return checkRow(currentRowIndex);
+    } else if (currentTileIndex < WORD_LENGTH) {
+        return setError('Too short');
+    }
   }
 
   const addLetter = (letter) => {
@@ -227,7 +235,7 @@ function App() {
       // Repeated letters in guessed word that are both in wrong index and are not repeated in correct word,
       // Calculate the one that is closer to the right index, and make the other one gray
       function calculateClosestIndex(correctWord, repLetters) {
-        console.log(repLetters)
+        console.log('repLetters: ', repLetters)
           if (!repLetters.length) return repLetters;
           
           const letterCounts = {};
@@ -250,6 +258,19 @@ function App() {
 
 
           if (duplicatedLetters.length) {
+
+
+            // if (duplicatedLetters.length >= 2 && duplicatedLetters.length === repLetters.length
+            //     && greenLetters.some(greenL => greenL.letter === duplicatedLetters[0].letter)) {
+            //         console.log('3 letters in word');
+
+            //         return duplicatedLetters;
+            // }
+
+
+
+
+
               const letter = duplicatedLetters[0].letter;
 
               const indexOfLetterInGuessedWord = duplicatedLetters[0].index;
@@ -296,6 +317,8 @@ function App() {
       console.log('Gray letters: ', grayLetters);
       
       const closestYellowFromNotRepeatedButYellow = calculateClosestIndex(correctWord, notRepeatedButShouldBeYellow);
+
+      console.log('Closest: ', closestYellowFromNotRepeatedButYellow)
       
       // Yellow letters
       const yellowLetters = [...repeatedLettersThatShouldBeYellow, ...yellowForSure].concat(...closestYellowFromNotRepeatedButYellow.some(c => greenLetters.some(gl => gl.letter === c.letter))
@@ -423,8 +446,8 @@ function App() {
   }
 
   const chooseRandomWord = () => {
-    // const randomWord = WORDS[Math.floor(Math.random() * WORDS.length)];
-    const randomWord = 'esses';
+    const randomWord = WORDS[Math.floor(Math.random() * WORDS.length)];
+    // const randomWord = 'esses';
     
     console.log('Word: ', randomWord);
     // console.log('Word: ', randomWord);
@@ -463,11 +486,12 @@ function App() {
 
    // Handle win
    useEffect(() => {
-    if (isGameOver && !foundWord) {
-        console.log('Game over');
-        document.removeEventListener('keydown', handleKeyDown);
-    } else if (isGameOver && foundWord) {
-        console.log('You won');
+    // if (isGameOver && !foundWord) {
+    //     document.removeEventListener('keydown', handleKeyDown);
+    // } else if (isGameOver && foundWord) {
+    //     document.removeEventListener('keydown', handleKeyDown);
+    // }
+    if (isGameOver) {
         document.removeEventListener('keydown', handleKeyDown);
     }
   }, [isGameOver]);
