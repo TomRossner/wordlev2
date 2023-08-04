@@ -3,26 +3,27 @@ import { useState, useEffect } from "react";
 import Grid from "./components/Grid";
 import { WORDS } from "./words";
 import { MAX_GUESSES, WORD_LENGTH, COLORS } from "./constants";
+import { ICorrectWord, IErrorMessage, IFoundWord, IGameOver, IGrid, IIndexes, IRowIndex, ITileIndex, IWordsList } from "./interfaces";
 
 function App() {
-  const [correctWord, setCorrectWord] = useState("");
-  const [wordsList, setWordsList] = useState({});
-  const [error, setError] = useState("");
+  const [correctWord, setCorrectWord] = useState<ICorrectWord | "">({correctWord: ""});
+  const [wordsList, setWordsList] = useState<IWordsList | {}>({wordsList: {}});
+  const [error, setError] = useState<IErrorMessage | "">({errorMessage: ""});
 
-  const [isGameOver, setIsGameOver] = useState(false);
-  const [foundWord, setFoundWord] = useState(false);
+  const [isGameOver, setIsGameOver] = useState<IGameOver | false>({isGameOver: false});
+  const [foundWord, setFoundWord] = useState<IFoundWord | false>({foundWord: false});
 
-  const [grid, setGrid] = useState([
+  const [grid, setGrid] = useState<IGrid | [[""]]>({grid: [
     ["", "", "", "", ""],
     ["", "", "", "", ""],
     ["", "", "", "", ""],
     ["", "", "", "", ""],
     ["", "", "", "", ""],
     ["", "", "", "", ""],
-  ]);
+  ]});
 
-  const createWordsList = (arrOfWords) => {
-    const words = {};
+  const createWordsList = (arrOfWords: string[]) => {
+    const words: object = {};
 
     for (let word of arrOfWords) {
       if (!wordsList[word]) {
@@ -33,10 +34,10 @@ function App() {
     return setWordsList(words);
   };
 
-  const [currentRowIndex, setCurrentRowIndex] = useState(0);
-  const [currentTileIndex, setCurrentTileIndex] = useState(0);
+  const [currentRowIndex, setCurrentRowIndex] = useState<IRowIndex| 0>({currentRowIndex: 0});
+  const [currentTileIndex, setCurrentTileIndex] = useState<ITileIndex | 0>({currentTileIndex: 0});
 
-  const handleKeyDown = (ev) => {
+  const handleKeyDown = (ev: KeyboardEvent) => {
     if (/^[a-zA-Z]$/.test(ev.key) && ev.key.length === 1) {
       return addLetter(ev.key);
     } else if (ev.key.length > 1 && ev.key.toLowerCase() === "enter") {
@@ -50,11 +51,11 @@ function App() {
     if (currentTileIndex === WORD_LENGTH) {
       return checkRow(currentRowIndex);
     } else if (currentTileIndex < WORD_LENGTH) {
-      return setError("Too short");
+      return setError({errorMessage: "Too short"});
     }
   };
 
-  const addLetter = (letter) => {
+  const addLetter = (letter: string) => {
     setGrid([
       ...grid.map((row, rowIndex) => {
         if (rowIndex === currentRowIndex) {
