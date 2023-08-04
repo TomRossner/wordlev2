@@ -19,7 +19,7 @@ export interface IFoundWord {
 }
 
 export interface IGrid {
-    grid: string[][]
+    grid: ITile[][]
 }
 
 export interface IRowIndex {
@@ -28,4 +28,23 @@ export interface IRowIndex {
 
 export interface ITileIndex {
     currentTileIndex: number;
+}
+
+export interface ITile {
+    letter: string;
+    colorClass: string;
+}
+
+export interface ILetter {
+    letter: string;
+    index: number;
+}
+
+export interface ILetterWithDist extends ILetter{
+    distFromCorrectIndex: number;
+}
+
+export interface ISmallestAndSlargestIndexes {
+    smallest: ILetter;
+    largest: ILetter;
 }
