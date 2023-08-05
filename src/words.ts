@@ -5756,4 +5756,4 @@ export const WORDS: string[] = [
     'rumba',
     'biffy',
     'pupal',
-  ]
+]

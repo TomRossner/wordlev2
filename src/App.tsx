@@ -1,22 +1,25 @@
-import "./index.scss";
+// import "./index.scss";
 import { useState, useEffect } from "react";
-import Grid from "./components/Grid";
-import { WORDS } from "./words";
-import { MAX_GUESSES, WORD_LENGTH, COLORS } from "./constants";
-import { ICorrectWord, IErrorMessage, IFoundWord, IGameOver, IGrid, ILetter, ILetterWithDist, IRow, IRowIndex, ISmallestAndSlargestIndexes, ITile, ITileIndex, IWordsList } from "./interfaces";
+import Grid from "./components/Grid.tsx";
+import { WORDS } from "./words.ts";
+import { MAX_GUESSES, WORD_LENGTH, COLORS, keyboardLetters, winAudio, invalidAudio } from "./constants.ts";
+import { ICorrectWord, IErrorMessage, IFoundWord, IGameOver, IGrid, IKeyboardKey, ILetter, ILetterWithDist, IRowIndex, ISmallestAndLargestIndexes, ITile, ITileIndex, IWordsList } from "./interfaces";
+import React from "react";
+import Keyboard from "./components/Keyboard.tsx";
 
-function App() {
+const App = () => {
   const [correctWord, setCorrectWord] = useState<ICorrectWord>({correctWord: ""});
-  const [wordsList, setWordsList] = useState<IWordsList>({wordsList: {}});
+  const [wordsList, setWordsList] = useState<IWordsList>({});
   const [errorMessage, setErrorMessage] = useState<IErrorMessage | null>(null);
 
   const [isGameOver, setIsGameOver] = useState<IGameOver>({isGameOver: false});
   const [foundWord, setFoundWord] = useState<IFoundWord>({foundWord: false});
 
   const [grid, setGrid] = useState<IGrid>({grid: []});
+  const [keyboard, setKeyboard] = useState<IKeyboardKey[]>([]);
 
   const createWordsList = (arrOfWords: string[]) => {
-    const words: object = {};
+    const words: {[key: string] : string} = {};
 
     for (let word of arrOfWords) {
       if (!wordsList[word]) {
@@ -24,13 +27,13 @@ function App() {
       }
     }
 
-    return setWordsList({wordsList: words});
+    return setWordsList(words);
   };
 
   const [currentRowIndex, setCurrentRowIndex] = useState<IRowIndex>({currentRowIndex: 0});
   const [currentTileIndex, setCurrentTileIndex] = useState<ITileIndex>({currentTileIndex: 0});
 
-  const handleKeyDown = (ev: KeyboardEvent) => {
+  const handleKeyDown = (ev: KeyboardEvent): void => {
     if (/^[a-zA-Z]$/.test(ev.key) && ev.key.length === 1) {
       return addLetter(ev.key);
     } else if (ev.key.length > 1 && ev.key.toLowerCase() === "enter") {
@@ -39,8 +42,18 @@ function App() {
       return deleteLetter();
     }
   };
+  const handleKeyClick = (letter: string): void => {
+    console.log(letter)
+    // if (/^[a-zA-Z]$/.test(ev.key) && ev.key.length === 1) {
+    //   return addLetter(ev.key);
+    // } else if (ev.key.length > 1 && ev.key.toLowerCase() === "enter") {
+    //   return handleEnterKey();
+    // } else if (ev.key.length > 1 && ev.key.toLowerCase() === "backspace") {
+    //   return deleteLetter();
+    // }
+  };
 
-  const handleEnterKey = () => {
+  const handleEnterKey = (): void => {
     if (currentTileIndex.currentTileIndex === WORD_LENGTH) {
       return checkRow(currentRowIndex.currentRowIndex);
     } else if (currentTileIndex.currentTileIndex < WORD_LENGTH) {
@@ -87,22 +100,43 @@ function App() {
     ]});
   };
 
-  const checkRow = (rowIndex: number) => {
-    const word = grid[rowIndex].map((tile: ITile) => tile.letter).join("");
-    const guessedWord = word.toLowerCase();
+  const playAudio = (audioFile: HTMLAudioElement): Promise<void> => {
+    return audioFile.play();
+  }
+
+  const shakeRow = (): void => {
+    setGrid({grid: grid.grid.map((row: ITile[], rowIndex: number) => {
+      if (rowIndex === currentRowIndex.currentRowIndex) {
+        return row.map((tile: ITile) => {
+          return {
+            ...tile,
+            colorClass: tile.colorClass + ' shake'
+          }
+        })
+      } else return row;
+    })})
+  }
+
+  const checkRow = (rowIndex: number): void => {
+    const word: string = grid.grid[rowIndex].map((tile: ITile) => tile.letter).join("");
+    const guessedWord: string = word.toLowerCase();
 
     if (wordsList[guessedWord]) {
-      if (guessedWord === correctWord) {
+      if (guessedWord === correctWord.correctWord) {
         // WIN
-        const updatedGrid = grid.grid.map((row: ITile[], rowIdx: number) => {
+        const updatedGrid: ITile[][] = grid.grid.map((row: ITile[], rowIdx: number) => {
           if (rowIdx === currentRowIndex.currentRowIndex) {
             return row.map((tile: ITile) => setGreen(tile));
           } else return row;
         });
+
         setGrid({grid: updatedGrid});
 
         setIsGameOver({isGameOver: true});
         setFoundWord({foundWord: true});
+
+        playAudio(winAudio);
+
         return;
       } else {
         return checkLetters(guessedWord);
@@ -111,14 +145,14 @@ function App() {
       // Word not in list
       console.log(`The word '${guessedWord}' does not exist`);
       setErrorMessage({errorMessage: "Word not in list"});
+      playAudio(invalidAudio);
+      // shakeRow(); // Needs fix
     }
   };
 
-  const checkLetters = (word: string) => {
-    const lettersOccurrencesInCorrectWord = getRepeatedLetters(correctWord);
-    const lettersOccurrencesInGuessedWord = getRepeatedLetters(word);
-    console.log("Correct word letters: ", lettersOccurrencesInCorrectWord);
-    console.log("Guessed word letters: ", lettersOccurrencesInGuessedWord);
+  const checkLetters = (word: string): void => {
+    const lettersOccurrencesInCorrectWord: {[key: string] : number} = getRepeatedLetters(correctWord.correctWord);
+    const lettersOccurrencesInGuessedWord: {[key: string] : number} = getRepeatedLetters(word);
 
     const greenLetters: ILetter[] = [];
 
@@ -128,9 +162,10 @@ function App() {
 
     const grayLetters: ILetter[] = [];
 
+    // Green Letters
     for (let i = 0; i < word.length; i++) {
-      const letterAtCurrentIndex = word[i];
-      const letterInCorrectWordAtCurrentIndex = correctWord[i];
+      const letterAtCurrentIndex: string = word[i];
+      const letterInCorrectWordAtCurrentIndex: string = correctWord.correctWord[i];
 
       if (letterAtCurrentIndex === letterInCorrectWordAtCurrentIndex) {
         if (greenLetters.some((gl: ILetter) => gl.letter === letterAtCurrentIndex && gl.index !== i)) {
@@ -161,66 +196,65 @@ function App() {
     console.log("GreenLetters: ", greenLetters);
     console.log("Not green letters: ", notGreenLetters);
 
+    // Yellow & Gray Letters
     for (let i = 0; i < word.length; i++) {
-        const letter = word[i];
+        const letter: string = word[i];
 
-        const numOfGreens = greenLetters.filter((gLetter: ILetter) => gLetter.letter === letter).length;
+        const numOfGreens: number = greenLetters.filter((gLetter: ILetter) => gLetter.letter === letter).length;
         // console.log(`Num of green ${letter}: `, numOfGreens);
 
-        const numOfOccurrencesInCorrectWord = lettersOccurrencesInCorrectWord[letter] || 0;
+        const numOfOccurrencesInCorrectWord: number = lettersOccurrencesInCorrectWord[letter] || 0;
         //   console.log("Occurrences in correct word: ", numOfOccurrencesInCorrectWord);
             
-        const numOfYellows = numOfOccurrencesInCorrectWord - numOfGreens;
+        const numOfYellows: number = numOfOccurrencesInCorrectWord - numOfGreens;
         console.log(`Num of yellow ${letter}: `, numOfYellows);
 
-        const inGreen = greenLetters.some((gLetter: ILetter) => gLetter.letter === letter && gLetter.index !== i);
+        const inGreen: boolean = greenLetters.some((gLetter: ILetter) => gLetter.letter === letter && gLetter.index !== i);
         //   console.log(`${letter} at index ${i} is in green letters ? `, inGreen);
 
         if (numOfYellows && !inGreen) {
             yellowLetters.push({letter, index: i});
 
-            if ((yellowLetters.filter((yel: ILetter) => yel.letter === letter).length === lettersOccurrencesInGuessedWord[letter]) && (lettersOccurrencesInGuessedWord[letter] >= 2)) {
+            if ((yellowLetters.filter((yel: ILetter) => yel.letter === letter).length === lettersOccurrencesInCorrectWord[letter]) && (lettersOccurrencesInGuessedWord[letter] >= 2)) {
                 const duplicatedLetters = yellowLetters.filter((yel: ILetter) => yel.letter === letter);
     
                 // Calculate closest index
-                const calculateClosestIndex = (correctWord: string, letters: ILetter[]) : ISmallestAndSlargestIndexes => {
-                    const correctLetterIndex = correctWord.indexOf(letter);  
-                    console.log(letters)
+                const calculateClosestIndex = (correctWord: string, letters: ILetter[]): ISmallestAndLargestIndexes => {
+                    const correctLetterIndex: number = correctWord.indexOf(letter);
     
-                    const mapIndexesMinusCorrectLetterIndex = letters.map((dupL: ILetter) => {
+                    const mapIndexesMinusCorrectLetterIndex: ILetterWithDist[] = letters.map((dupL: ILetter) => {
                         return {
                             ...dupL,
-                            distFromCorrectIndex: dupL.index - correctLetterIndex
+                            distFromCorrectIndex: dupL.index ? dupL.index - correctLetterIndex : undefined
                         }
                     });
     
     
-                    const smallestIndex = Math.min(...mapIndexesMinusCorrectLetterIndex.map((m: ILetterWithDist) => m.distFromCorrectIndex));
-                    const largestIndex = Math.max(...mapIndexesMinusCorrectLetterIndex.map((m: ILetterWithDist) => m.distFromCorrectIndex));
+                    const smallestIndex: number = Math.min(...mapIndexesMinusCorrectLetterIndex.map((m: ILetterWithDist) => m.distFromCorrectIndex) as number[]);
+                    const largestIndex: number = Math.max(...mapIndexesMinusCorrectLetterIndex.map((m: ILetterWithDist) => m.distFromCorrectIndex) as number[]);
     
-                    const yellowLetter = mapIndexesMinusCorrectLetterIndex.find((l: ILetterWithDist) => l.distFromCorrectIndex === smallestIndex);
-                    const grayLetter = mapIndexesMinusCorrectLetterIndex.find((l: ILetterWithDist) => l.distFromCorrectIndex === largestIndex);
-    
+                    const yellowLetter: ILetterWithDist = mapIndexesMinusCorrectLetterIndex.find((l: ILetterWithDist) => l.distFromCorrectIndex === smallestIndex) as ILetterWithDist; 
+                    const grayLetter: ILetterWithDist = mapIndexesMinusCorrectLetterIndex.find((l: ILetterWithDist) => l.distFromCorrectIndex === largestIndex) as ILetterWithDist;
                     
                     return {
                         smallest: {
-                            letter: yellowLetter.letter,
-                            index: yellowLetter.index
+                            letter: yellowLetter?.letter,
+                            index: yellowLetter?.index
                         },
                         largest: {
-                            letter: grayLetter.letter,
-                            index: grayLetter.index
+                            letter: grayLetter?.letter,
+                            index: grayLetter?.index
                         }
                     }
                 }
     
-                const letterAtClosestIndex = calculateClosestIndex(correctWord.correctWord, duplicatedLetters).smallest;
+                const letterAtClosestIndex: ILetter = calculateClosestIndex(correctWord.correctWord, duplicatedLetters).smallest;
                 
-                const letterAtFarthestIndex = calculateClosestIndex(correctWord.correctWord, duplicatedLetters).largest;
+                // const letterAtFarthestIndex: ILetter = calculateClosestIndex(correctWord.correctWord, duplicatedLetters).largest;
                 // console.log(calculateClosestIndex(correctWord, [{letter: 's', index: 1},{letter: 's', index: 1}, {letter: 's', index: 4}]))
                 grayLetters.push(...yellowLetters.filter((yel: ILetter) => yel.letter === letter && yel.index !== letterAtClosestIndex.index));
     
-                const updatedYellowLetters = [...yellowLetters.filter((yel: ILetter) => yel.letter !== letter), letterAtClosestIndex];
+                const updatedYellowLetters: ILetter[] = [...yellowLetters.filter((yel: ILetter) => yel.letter !== letter), letterAtClosestIndex];
     
                 yellowLetters = [...updatedYellowLetters];
             }
@@ -249,7 +283,7 @@ function App() {
         })
     }
 
-    // // Yellow
+    // Yellow
     for (let y = 0; y < word.length; y++) {
         updatedGrid.grid = updatedGrid.grid.map((row: ITile[], rowIndex: number) => {
             if (rowIndex === currentRowIndex.currentRowIndex) {
@@ -263,7 +297,7 @@ function App() {
         })
     }
 
-    // // Gray
+    // Gray
     for (let g = 0; g < word.length; g++) {
         updatedGrid.grid = updatedGrid.grid.map((row: ITile[], rowIndex: number) => {
             if (rowIndex === currentRowIndex.currentRowIndex) {
@@ -280,22 +314,57 @@ function App() {
     console.log('updatedGrid: ', updatedGrid);
 
     setGrid(updatedGrid);
+
+    updateKeyboard(grayLetters, yellowLetters, greenLetters);
     
     
     // Set next guess
-    if ((currentRowIndex.currentRowIndex + 1) < MAX_GUESSES) {
-        setCurrentRowIndex({currentRowIndex: currentRowIndex.currentRowIndex + 1});
-        setCurrentTileIndex({currentTileIndex: 0});
-    } else setIsGameOver({isGameOver: true});
+    updateGuess();
   };
 
-  const getRepeatedLetters = (word: string): object => {
+  const updateGuess = (): void => {
+    if ((currentRowIndex.currentRowIndex + 1) < MAX_GUESSES) {
+      setCurrentRowIndex({currentRowIndex: currentRowIndex.currentRowIndex + 1});
+      setCurrentTileIndex({currentTileIndex: 0});
+    } else setIsGameOver({isGameOver: true});
+  }
+
+  const updateKeyboard = (grayLetters: ILetter[], yellowLetters: ILetter[], greenLetters: ILetter[]): void => {
+    setKeyboard(keyboard.map((kbKey: IKeyboardKey) => {
+
+      const inGrayLetters: boolean = grayLetters.some((grayL: ILetter) => grayL.letter === kbKey.key);
+      const inYellowLetters: boolean = yellowLetters.some((grayL: ILetter) => grayL.letter === kbKey.key);
+      const inGreenLetters: boolean = greenLetters.some((grayL: ILetter) => grayL.letter === kbKey.key);
+
+      const onlyInGrayLetters: boolean = inGrayLetters && !inYellowLetters && !inGreenLetters;
+
+      if (onlyInGrayLetters) {
+        return {
+          ...kbKey,
+          colorClass: 'gray'
+        }
+      } else return kbKey;
+    }))
+  }
+
+  const resetKeyboard = (): void => {
+    setKeyboard(keyboard.map((kbKey: IKeyboardKey) => {
+      if (kbKey.colorClass) {
+        return {
+          ...kbKey,
+          colorClass: ''
+        }
+      } else return kbKey;
+    }))
+  }
+
+  const getRepeatedLetters = (word: string): {[key: string] : number} => {
     const letters: string[] = Array.from(word);
 
-    const letterCounts: object = {};
+    const letterCounts: {[key: string] : number} = {};
 
     letters.forEach((ltr: string) => {
-      const letter = ltr.toLowerCase();
+      const letter: string = ltr.toLowerCase();
       letterCounts[letter] = (letterCounts[letter] || 0) + 1;
     });
 
@@ -327,30 +396,34 @@ function App() {
     setCurrentTileIndex({currentTileIndex: 0});
     setFoundWord({foundWord: false});
     chooseRandomWord();
-    resetGrid();
+    setGrid({grid: resetGrid(MAX_GUESSES, WORD_LENGTH)});
+    resetKeyboard();
   };
 
-  const tileObj: ITile = {
+  const tile: ITile = {
     letter: "",
     colorClass: "",
   };
 
-  const row: ITile[] = [
-    tileObj,
-    tileObj,
-    tileObj,
-    tileObj,
-    tileObj
-  ];
+  const resetGrid = (rows: number, cols: number): ITile[][] => {
+    const newGrid: ITile[][] = [];
 
+    for (let i = 0; i < rows; i++) {
+      const row: ITile[] = [];
 
-  const resetGrid = () => {
-    setGrid(grid.grid.fill(row.fill(tileObj)));
+      for (let j = 0; j < cols; j++) {
+        row.push(tile);
+      }
+
+      newGrid.push(row);
+    }
+
+    return newGrid;
   };
 
-  const chooseRandomWord = () => {
+  const chooseRandomWord = (): void => {
     const randomWord: string = WORDS[Math.floor(Math.random() * WORDS.length)];
-    // const randomWord = "sport";
+    // const randomWord: string = "canst";
 
     console.log("Word: ", randomWord);
     // console.log('Word: ', randomWord);
@@ -367,20 +440,31 @@ function App() {
   // Create words list
   useEffect(() => {
     createWordsList(WORDS);
+
+    setGrid({grid: resetGrid(MAX_GUESSES, WORD_LENGTH)});
+
+    setKeyboard(keyboardLetters.map((kLetter: string) => {
+      return {
+        key: kLetter,
+        colorClass: ''
+      }
+    }))
   }, []);
 
   // Add keydown event listeners
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown);
+    // document.addEventListener("click", handleKeyClick);
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
+      // document.removeEventListener("click", handleClick);
     };
   }, [currentTileIndex, grid]);
 
   // Error timeout
   useEffect(() => {
-    if (errorMessage.errorMessage) {
+    if (errorMessage?.errorMessage) {
       setTimeout(() => {
         setErrorMessage({errorMessage: ""});
       }, 2000);
@@ -389,39 +473,40 @@ function App() {
 
   // Handle win
   useEffect(() => {
-    // if (isGameOver && !foundWord) {
-    //     document.removeEventListener('keydown', handleKeyDown);
-    // } else if (isGameOver && foundWord) {
-    //     document.removeEventListener('keydown', handleKeyDown);
-    // }
-    if (isGameOver) {
+    if (isGameOver.isGameOver) {
       document.removeEventListener("keydown", handleKeyDown);
+    } else if(!isGameOver.isGameOver) {
+      document.addEventListener("keydown", handleKeyDown);
     }
   }, [isGameOver]);
 
   return (
-    <div id="app-container">
-      <h1>Wordle</h1>
+    <div id="game-container">
+      <h1 className="title">Wordle</h1>
 
-      <Grid grid={grid} resetGrid={resetGrid} />
-
-      {error && (
+      <div className="space"></div>
+      
+      {errorMessage?.errorMessage && (
         <p id="message" className="message">
-          {error}
+          {errorMessage.errorMessage}
         </p>
       )}
 
-      {isGameOver && !foundWord && (
+      <Grid grid={grid} resetGrid={() => resetGrid(MAX_GUESSES, WORD_LENGTH)} />
+      
+      <div className="space"></div>
+
+      {isGameOver.isGameOver && !foundWord.foundWord && (
         <>
           <p className="message green">
-            The word was {correctWord.toUpperCase()}
+            The word was {correctWord.correctWord.toUpperCase()}
           </p>
           <button onClick={resetGame} id="playAgain" className="reset">
             Play again
           </button>
         </>
       )}
-      {isGameOver && foundWord && (
+      {isGameOver.isGameOver && foundWord.foundWord && (
         <>
           <p className="message green">YOU WON!</p>
           <button onClick={resetGame} id="playAgain" className="reset">
@@ -429,6 +514,8 @@ function App() {
           </button>
         </>
       )}
+      <div className="space"></div>
+      <Keyboard handleKeyClick={handleKeyClick} keyboard={keyboard}/>
     </div>
   );
 }

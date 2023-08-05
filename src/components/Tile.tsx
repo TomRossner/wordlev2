@@ -1,10 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { ITile } from '../interfaces';
 
-const Tile = ({tile}) => {
+interface TileProps {
+  tile: ITile;
+}
+
+const Tile: React.FC<TileProps> = ({tile}) => {
 
   return (
-    <div className={`tile ${tile.colorClass}`}>
-        {tile.letter}
+    <div className={`${tile.letter ? 'tile filled' : 'tile'} ${tile.colorClass}`}>
+        {tile.letter.toUpperCase()}
     </div>
   )
 }

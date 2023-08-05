@@ -3,7 +3,7 @@ export interface ICorrectWord {
 }
 
 export interface IWordsList {
-    wordsList: object;
+    [key: string] : string;
 }
 
 export interface IErrorMessage {
@@ -41,10 +41,15 @@ export interface ILetter {
 }
 
 export interface ILetterWithDist extends ILetter{
-    distFromCorrectIndex: number;
+    distFromCorrectIndex: number | undefined;
 }
 
-export interface ISmallestAndSlargestIndexes {
+export interface ISmallestAndLargestIndexes {
     smallest: ILetter;
     largest: ILetter;
+}
+
+export interface IKeyboardKey {
+    key: string;
+    colorClass: string;
 }

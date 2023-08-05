@@ -10,7 +10,7 @@ body{
     user-select: none;
 }
 
-.game-container{
+#game-container{
     display: flex;
     flex-direction: column;
     min-height: 100vh;
@@ -18,6 +18,12 @@ body{
     font-size: clamp(1rem, 2vmin, 1.5rem);
     position: relative;
 }
+
+.title{
+    font-family: "Ubuntu", sans-serif;
+    font-size: 1.2rem;
+}
+
 .title-play-again{
     display: flex;
     justify-content: space-around;
@@ -130,11 +136,12 @@ body{
 
 .tile{
     width: 3rem;
+    aspect-ratio: 1 / 1;
     margin: 0 0.1rem;
     color: rgb(240, 240, 240);
     font-family: "Ubuntu";
     font-weight: 700;
-    font-size: 2rem;
+    font-size: 1.7rem;
     border: 2px solid hsl(   
         var(--hue, 0),
         var(--saturation, 0%),
@@ -161,6 +168,10 @@ body{
     var(--lightness, 43%));
     color: rgb(240, 240, 240);
     transition: background-color 0.2s;
+}
+
+.tile.filled.reveal{
+    animation: letterReveal forwards 0.5s;
 }
 
 .tile.filled.yellow{
@@ -205,6 +216,23 @@ body{
     color: rgb(240, 240, 240);
     border: none;
     transition: background-color 0.1s;
+    animation: tileAnim forwards 0.1s;
+}
+
+.tile.filled.shake{
+    animation: shakeLetters forwards 0.3s;
+}
+
+@keyframes tileAnim {
+    0% {
+        scale: 0.9;
+    }
+    50% {
+        scale: 1.1;
+    }
+    100% {
+        scale: 1;
+    }
 }
 
 .info{
@@ -273,7 +301,7 @@ body{
     border: none;
     background-color: rgb(23, 143, 212);
     transition: transform 0.05s;
-    margin: 0 auto;
+    margin: 2rem auto;
 }
 
 .reset:hover{
@@ -288,8 +316,11 @@ body{
     box-shadow: 0 0 15px 2px rgb(0, 0, 0, 0.5);
 }
 
-.space{
+.keyboard-space{
     flex: 1;
+}
+.space{
+    flex: 0.5;
 }
 
 footer{
