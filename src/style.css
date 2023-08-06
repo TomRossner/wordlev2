@@ -76,25 +76,30 @@ body{
 }
 
 .tiles-container{
-    margin: 0 auto;
+    margin: 3rem auto 1rem auto;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
 }
 
 .keyboard{
     display: grid;
-    grid-template-columns: repeat(20, minmax(auto, 1.25em));
+    grid-template-columns: repeat(20, 1fr);
     grid-auto-rows: 3em;
     gap: 0.25em;
     justify-content: center;
-    padding: 0.5em;
-    margin-top: 1rem;
+    padding: 0.2em;
+    margin: 0 auto;
     font-family: "Ubuntu";
+    align-items: center;
 }
 
 .kb-button{
     transition: background-color 0.1s, color 0.1s;
     border: none;
     grid-column: span 2;
-    padding: 0;
+    padding: 0.95em;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -129,13 +134,14 @@ body{
 }
 
 .row{
-    height: 3rem;
+    height: auto;
     display: flex;
-    margin: 0.2rem 0;
+    gap: 0.1rem;
 }
 
 .tile{
-    width: 3rem;
+    width: 3.2rem;
+    height: 3.4rem;
     aspect-ratio: 1 / 1;
     margin: 0 0.1rem;
     color: rgb(240, 240, 240);
@@ -151,6 +157,7 @@ body{
     justify-content: center;
     align-items: center;
     user-select: none;
+    background-color: rgb(26, 26, 26);
 }
 
 .tile.filled.green{
@@ -163,9 +170,9 @@ body{
 }
 .green{
     background-color: hsl(   
-    var(--hue, 115),
-    var(--saturation, 29%),
-    var(--lightness, 43%));
+        var(--hue, 115),
+        var(--saturation, 29%),
+        var(--lightness, 43%));
     color: rgb(240, 240, 240);
     transition: background-color 0.2s;
 }
@@ -301,7 +308,7 @@ body{
     border: none;
     background-color: rgb(23, 143, 212);
     transition: transform 0.05s;
-    margin: 2rem auto;
+    margin: 0.5rem auto;
 }
 
 .reset:hover{
@@ -321,6 +328,14 @@ body{
 }
 .space{
     flex: 0.5;
+}
+
+.space.messages{
+    flex: unset;
+    height: 12vh;
+    display: flex;
+    flex-direction: column;
+    /* justify-content: space-between; */
 }
 
 footer{

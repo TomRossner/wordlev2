@@ -41,7 +41,7 @@ export interface ILetter {
 }
 
 export interface ILetterWithDist extends ILetter{
-    distFromCorrectIndex: number | undefined;
+    distFromCorrectIndex: number;
 }
 
 export interface ISmallestAndLargestIndexes {

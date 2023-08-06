@@ -193,26 +193,23 @@ const App = () => {
       }
     }
 
-    console.log("GreenLetters: ", greenLetters);
-    console.log("Not green letters: ", notGreenLetters);
-
     // Yellow & Gray Letters
     for (let i = 0; i < word.length; i++) {
         const letter: string = word[i];
 
         const numOfGreens: number = greenLetters.filter((gLetter: ILetter) => gLetter.letter === letter).length;
-        // console.log(`Num of green ${letter}: `, numOfGreens);
 
         const numOfOccurrencesInCorrectWord: number = lettersOccurrencesInCorrectWord[letter] || 0;
-        //   console.log("Occurrences in correct word: ", numOfOccurrencesInCorrectWord);
             
         const numOfYellows: number = numOfOccurrencesInCorrectWord - numOfGreens;
-        console.log(`Num of yellow ${letter}: `, numOfYellows);
 
-        const inGreen: boolean = greenLetters.some((gLetter: ILetter) => gLetter.letter === letter && gLetter.index !== i);
-        //   console.log(`${letter} at index ${i} is in green letters ? `, inGreen);
+        const inGreenAtDifferentIndex: boolean = greenLetters.some((gLetter: ILetter) => gLetter.letter === letter && gLetter.index !== i);
 
-        if (numOfYellows && !inGreen) {
+        const inGreenAtSameIndex: boolean = greenLetters.some((gLetter: ILetter) => gLetter.letter === letter && gLetter.index === i);
+
+        if (inGreenAtSameIndex) continue;
+
+        else if (numOfYellows && !inGreenAtDifferentIndex) {
             yellowLetters.push({letter, index: i});
 
             // In Guessed Word
@@ -226,52 +223,59 @@ const App = () => {
             // Calculate closest index
             const calculateClosestIndex = (correctWord: string, letters: ILetter[]): ISmallestAndLargestIndexes => {
               const correctLetterIndex: number = correctWord.indexOf(letter);
-              console.log('Correct letter index: ', correctLetterIndex)
-              console.log('letters to check: ', letters);
-
+          
               const mapIndexesMinusCorrectLetterIndex: ILetterWithDist[] = letters.map((dupL: ILetter) => {
                   return {
                       ...dupL,
                       distFromCorrectIndex: dupL.index - correctLetterIndex
-                  }
+                  };
               });
+          
+              const closestIndexUnderZero: ILetterWithDist | undefined = mapIndexesMinusCorrectLetterIndex.find((l: ILetterWithDist) => l.distFromCorrectIndex === -1);
+          
+              if (closestIndexUnderZero) {
+                const otherLetter: ILetterWithDist = mapIndexesMinusCorrectLetterIndex.find((l: ILetterWithDist) => l.distFromCorrectIndex !== -1) as ILetterWithDist;
 
-              console.log('results: ', mapIndexesMinusCorrectLetterIndex)
-
-              const closestIndexUnderZero: ILetterWithDist = mapIndexesMinusCorrectLetterIndex.find((l: ILetterWithDist) => l.distFromCorrectIndex === -1) as ILetterWithDist;
-              // fix closestunderzero
-
-              console.log('closest at -1: ', closestIndexUnderZero)
-
-
-              const smallestIndex: number = Math.min(...mapIndexesMinusCorrectLetterIndex.map((m: ILetterWithDist) => m.distFromCorrectIndex) as number[]);
-              const largestIndex: number = Math.max(...mapIndexesMinusCorrectLetterIndex.map((m: ILetterWithDist) => m.distFromCorrectIndex) as number[]);
-
-              console.log('smallest: ', smallestIndex)
-
-              const yellowLetter: ILetterWithDist = mapIndexesMinusCorrectLetterIndex.find((l: ILetterWithDist) => l.distFromCorrectIndex === smallestIndex) as ILetterWithDist; 
-              const grayLetter: ILetterWithDist = mapIndexesMinusCorrectLetterIndex.find((l: ILetterWithDist) => l.distFromCorrectIndex === largestIndex) as ILetterWithDist;
-              
+                return {
+                    smallest: {
+                        letter,
+                        index: closestIndexUnderZero ? closestIndexUnderZero.index : otherLetter.index
+                    },
+                    largest: {
+                        letter: otherLetter?.letter,
+                        index: otherLetter?.index
+                    }
+                };
+              }
+          
+              // If no letter with distance -1, find the letter with the smallest positive distance
+              const smallestPositiveDistance: number | undefined = mapIndexesMinusCorrectLetterIndex.filter((l: ILetterWithDist) => l.distFromCorrectIndex > 0)[0]?.distFromCorrectIndex;
+          
+              const closestLetter: ILetterWithDist = mapIndexesMinusCorrectLetterIndex.find((l: ILetterWithDist) => l.distFromCorrectIndex === smallestPositiveDistance) as ILetterWithDist;
+          
+              // Find the other letter for the largest
+              const otherLetter: ILetterWithDist = mapIndexesMinusCorrectLetterIndex.find((l: ILetterWithDist) => l !== closestLetter) as ILetterWithDist;
+          
               return {
                   smallest: {
-                      letter: yellowLetter?.letter,
-                      index: closestIndexUnderZero.distFromCorrectIndex === -1 ? closestIndexUnderZero.index : yellowLetter?.index
+                      letter,
+                      index: closestLetter? closestLetter.index : otherLetter.index
                   },
                   largest: {
-                      letter: grayLetter?.letter,
-                      index: grayLetter?.index
+                      letter: otherLetter?.letter,
+                      index: otherLetter?.index
                   }
-              }
-            }
+              };
+          };
+          
 
             if ((quantityOfLetterInYellowsEqualsOccurrencesInGuessedWord || quantityOfLetterInYellowsEqualsOccurrencesInCorrectWord) && occurrencesInGuessedLargerThanOne) {
                 const duplicatedLetters = yellowLetters.filter((yel: ILetter) => yel.letter === letter);
     
                 const letterAtClosestIndex: ILetter = calculateClosestIndex(correctWord.correctWord, duplicatedLetters).smallest;
-                console.log('at closest: ', letterAtClosestIndex)
                 
                 // const letterAtFarthestIndex: ILetter = calculateClosestIndex(correctWord.correctWord, duplicatedLetters).largest;
-                // console.log(calculateClosestIndex(correctWord, [{letter: 's', index: 1},{letter: 's', index: 1}, {letter: 's', index: 4}]))
+                
                 grayLetters.push(...yellowLetters.filter((yel: ILetter) => yel.letter === letter && yel.index !== letterAtClosestIndex.index));
     
                 const updatedYellowLetters: ILetter[] = [...yellowLetters.filter((yel: ILetter) => yel.letter !== letter), letterAtClosestIndex];
@@ -280,12 +284,9 @@ const App = () => {
             }
         }
 
-        else if (inGreen) grayLetters.push({letter, index: i});
+        else if (inGreenAtDifferentIndex) grayLetters.push({letter, index: i});
         else if (!correctWord.correctWord.includes(letter)) grayLetters.push({letter, index: i});
     }
-
-    console.log("Yellow letters: ", yellowLetters);
-    console.log("Gray letters: ", grayLetters);
 
     let updatedGrid: IGrid = grid;
 
@@ -354,9 +355,9 @@ const App = () => {
 
       const inGrayLetters: boolean = grayLetters.some((grayL: ILetter) => grayL.letter === kbKey.key);
       const inYellowLetters: boolean = yellowLetters.some((grayL: ILetter) => grayL.letter === kbKey.key);
-      const inGreenLetters: boolean = greenLetters.some((grayL: ILetter) => grayL.letter === kbKey.key);
+      const inGreenAtDifferentIndexLetters: boolean = greenLetters.some((grayL: ILetter) => grayL.letter === kbKey.key);
 
-      const onlyInGrayLetters: boolean = inGrayLetters && !inYellowLetters && !inGreenLetters;
+      const onlyInGrayLetters: boolean = inGrayLetters && !inYellowLetters && !inGreenAtDifferentIndexLetters;
 
       if (onlyInGrayLetters) {
         return {
@@ -442,8 +443,8 @@ const App = () => {
   };
 
   const chooseRandomWord = (): void => {
-    // const randomWord: string = WORDS[Math.floor(Math.random() * WORDS.length)];
-    const randomWord: string = "canst";
+    const randomWord: string = WORDS[Math.floor(Math.random() * WORDS.length)];
+    // const randomWord: string = "fossa";
 
     console.log("Word: ", randomWord);
     // console.log('Word: ', randomWord);
@@ -503,8 +504,6 @@ const App = () => {
   return (
     <div id="game-container">
       <h1 className="title">Wordle</h1>
-
-      <div className="space"></div>
       
       {errorMessage?.errorMessage && (
         <p id="message" className="message">
@@ -514,27 +513,27 @@ const App = () => {
 
       <Grid grid={grid} resetGrid={() => resetGrid(MAX_GUESSES, WORD_LENGTH)} />
       
-      <div className="space"></div>
+      <div className="space messages">
+        {isGameOver.isGameOver && !foundWord.foundWord && (
+          <>
+            <p className="message green">
+              The word was {correctWord.correctWord.toUpperCase()}
+            </p>
+            <button onClick={resetGame} id="playAgain" className="reset">
+              Play again
+            </button>
+          </>
+        )}
+        {isGameOver.isGameOver && foundWord.foundWord && (
+          <>
+            <p className="message green">YOU WON!</p>
+            <button onClick={resetGame} id="playAgain" className="reset">
+              Play again
+            </button>
+          </>
+        )}
+      </div>
 
-      {isGameOver.isGameOver && !foundWord.foundWord && (
-        <>
-          <p className="message green">
-            The word was {correctWord.correctWord.toUpperCase()}
-          </p>
-          <button onClick={resetGame} id="playAgain" className="reset">
-            Play again
-          </button>
-        </>
-      )}
-      {isGameOver.isGameOver && foundWord.foundWord && (
-        <>
-          <p className="message green">YOU WON!</p>
-          <button onClick={resetGame} id="playAgain" className="reset">
-            Play again
-          </button>
-        </>
-      )}
-      <div className="space"></div>
       <Keyboard handleKeyClick={handleKeyClick} keyboard={keyboard}/>
     </div>
   );
