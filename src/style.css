@@ -223,7 +223,7 @@ body{
     color: rgb(240, 240, 240);
     border: none;
     transition: background-color 0.1s;
-    animation: tileAnim forwards 0.1s;
+    animation: tileAnim forwards 0.15s;
 }
 
 .tile.filled.shake{
@@ -232,10 +232,10 @@ body{
 
 @keyframes tileAnim {
     0% {
-        scale: 0.9;
+        scale: 0.7;
     }
     50% {
-        scale: 1.1;
+        scale: 1.15;
     }
     100% {
         scale: 1;
@@ -335,7 +335,13 @@ body{
     height: 12vh;
     display: flex;
     flex-direction: column;
-    /* justify-content: space-between; */
+}
+
+.space.error{
+    flex: unset;
+    height: 3vh;
+    display: flex;
+    flex-direction: column;
 }
 
 footer{

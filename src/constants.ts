@@ -49,7 +49,7 @@ export const keyboardLetters: string[] = [
 const winAudioFilePath: string = process.env.PUBLIC_URL + '/audio/winAudio.mp3';
 const gameOverAudioFilePath: string = process.env.PUBLIC_URL + '/audio/GameOverSound.mp3';
 const emptyAudioFilePath: string = process.env.PUBLIC_URL + '/audio/emptyAudio.mp3';
-const popAudioFilePath: string = process.env.PUBLIC_URL + '/audio/PopSound.mp3';
+export const popAudioFilePath: string = process.env.PUBLIC_URL + '/audio/PopSound.mp3';
 const shakeAudioFilePath: string = process.env.PUBLIC_URL + '/audio/ShakeSound.mp3';
 const invalidAudioFilePath: string = process.env.PUBLIC_URL + '/audio/invalidAudio.mp3';
 

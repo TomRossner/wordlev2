@@ -1,8 +1,8 @@
 // import "./index.scss";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Grid from "./components/Grid.tsx";
 import { WORDS } from "./words.ts";
-import { MAX_GUESSES, WORD_LENGTH, COLORS, keyboardLetters, winAudio, invalidAudio } from "./constants.ts";
+import { MAX_GUESSES, WORD_LENGTH, COLORS, keyboardLetters, winAudio, invalidAudio, popAudio, popAudioFilePath } from "./constants.ts";
 import { ICorrectWord, IErrorMessage, IFoundWord, IGameOver, IGrid, IKeyboardKey, ILetter, ILetterWithDist, IRowIndex, ISmallestAndLargestIndexes, ITile, ITileIndex, IWordsList } from "./interfaces";
 import React from "react";
 import Keyboard from "./components/Keyboard.tsx";
@@ -42,6 +42,7 @@ const App = () => {
       return deleteLetter();
     }
   };
+
   const handleKeyClick = (letter: string): void => {
     console.log(letter)
     if (/^[a-zA-Z]$/.test(letter) && letter.length === 1) {
@@ -62,6 +63,8 @@ const App = () => {
   };
 
   const addLetter = (letter: string): void => {
+    // playAudio(popAudio);
+    
     setGrid({grid: [
       ...grid.grid.map((row: ITile[], rowIndex: number) => {
         if (rowIndex === currentRowIndex.currentRowIndex) {
@@ -81,7 +84,7 @@ const App = () => {
       }),
     ]});
   };
-
+  
   const deleteLetter = (): void => {
     return setGrid({grid: [
       ...grid.grid.map((row: ITile[], rowIndex: number) => {
@@ -145,7 +148,7 @@ const App = () => {
       // Word not in list
       console.log(`The word '${guessedWord}' does not exist`);
       setErrorMessage({errorMessage: "Word not in list"});
-      playAudio(invalidAudio);
+      // playAudio(invalidAudio);
       // shakeRow(); // Needs fix
     }
   };
@@ -488,7 +491,7 @@ const App = () => {
     if (errorMessage?.errorMessage) {
       setTimeout(() => {
         setErrorMessage({errorMessage: ""});
-      }, 2000);
+      }, 3000);
     }
   }, [errorMessage]);
 
@@ -501,15 +504,21 @@ const App = () => {
     }
   }, [isGameOver]);
 
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
   return (
     <div id="game-container">
       <h1 className="title">Wordle</h1>
+
+      <audio ref={audioRef} src={popAudioFilePath} />;
       
-      {errorMessage?.errorMessage && (
-        <p id="message" className="message">
-          {errorMessage.errorMessage}
-        </p>
-      )}
+      <div className="space error">
+        {errorMessage?.errorMessage && (
+          <p id="message" className="message error">
+            {errorMessage.errorMessage}
+          </p>
+        )}
+      </div>
 
       <Grid grid={grid} resetGrid={() => resetGrid(MAX_GUESSES, WORD_LENGTH)} />
       
