@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Renders correctly 1`] = `
+<div
+  id="game-container"
+>
+  <h1
+    className="title"
+  >
+    Wordle
+  </h1>
+  <audio
+    src="/audio/PopSound.mp3"
+  />
+  <div
+    className="space error"
+  />
+  <section
+    className="tiles-container"
+    id="grid"
+  />
+  <div
+    className="space messages"
+  />
+  <div
+    className="keyboard"
+    id="keyboard"
+  />
+</div>
+`;

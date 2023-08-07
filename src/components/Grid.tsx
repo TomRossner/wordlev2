@@ -4,10 +4,11 @@ import { IGrid, ITile } from '../interfaces';
 
 interface GridProps {
     grid: IGrid;
-    resetGrid: () => void
+    resetGrid: () => void;
+    handleRemoveShake: () => void;
 }
 
-const Grid: React.FC<GridProps> = ({grid, resetGrid}) => {
+const Grid: React.FC<GridProps> = ({grid, resetGrid, handleRemoveShake}) => {
     
 
     // Create grid
@@ -22,7 +23,7 @@ const Grid: React.FC<GridProps> = ({grid, resetGrid}) => {
                 <div key={rowIndex} className='row'>
                     {row.map((tile: ITile, tileIndex: number) => {
                         return (
-                            <Tile key={tileIndex} tile={tile}/>
+                            <Tile key={tileIndex} tile={tile} handleRemoveShake={handleRemoveShake}/>
                         )
                     })}
                 </div>  

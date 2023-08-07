@@ -19,7 +19,7 @@ export interface IFoundWord {
 }
 
 export interface IGrid {
-    grid: ITile[][]
+    grid: ITile[][];
 }
 
 export interface IRowIndex {
@@ -42,6 +42,7 @@ export interface ILetter {
 
 export interface ILetterWithDist extends ILetter{
     distFromCorrectIndex: number;
+    distFromCorrectLastIndex: number;
 }
 
 export interface ISmallestAndLargestIndexes {
@@ -52,4 +53,12 @@ export interface ISmallestAndLargestIndexes {
 export interface IKeyboardKey {
     key: string;
     colorClass: string;
+}
+
+export interface IOccurrence {
+    [key: string]: number;
+}
+
+export interface IColor {
+    [key: string]: string;
 }

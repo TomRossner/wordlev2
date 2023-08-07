@@ -1,0 +1,123 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Renders correctly 1`] = `
+<section
+  className="tiles-container"
+  id="grid"
+>
+  <div
+    className="row"
+  >
+    <div
+      className="tile "
+    />
+    <div
+      className="tile "
+    />
+    <div
+      className="tile "
+    />
+    <div
+      className="tile "
+    />
+    <div
+      className="tile "
+    />
+  </div>
+  <div
+    className="row"
+  >
+    <div
+      className="tile "
+    />
+    <div
+      className="tile "
+    />
+    <div
+      className="tile "
+    />
+    <div
+      className="tile "
+    />
+    <div
+      className="tile "
+    />
+  </div>
+  <div
+    className="row"
+  >
+    <div
+      className="tile "
+    />
+    <div
+      className="tile "
+    />
+    <div
+      className="tile "
+    />
+    <div
+      className="tile "
+    />
+    <div
+      className="tile "
+    />
+  </div>
+  <div
+    className="row"
+  >
+    <div
+      className="tile "
+    />
+    <div
+      className="tile "
+    />
+    <div
+      className="tile "
+    />
+    <div
+      className="tile "
+    />
+    <div
+      className="tile "
+    />
+  </div>
+  <div
+    className="row"
+  >
+    <div
+      className="tile "
+    />
+    <div
+      className="tile "
+    />
+    <div
+      className="tile "
+    />
+    <div
+      className="tile "
+    />
+    <div
+      className="tile "
+    />
+  </div>
+  <div
+    className="row"
+  >
+    <div
+      className="tile "
+    />
+    <div
+      className="tile "
+    />
+    <div
+      className="tile "
+    />
+    <div
+      className="tile "
+    />
+    <div
+      className="tile "
+    />
+  </div>
+</section>
+`;

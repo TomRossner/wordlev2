@@ -15,7 +15,11 @@ const Keyboard: React.FC<KeyboardProps> = ({keyboard, handleKeyClick}) => {
                     <div key={keyIndex} className='keyboard-space'></div>
                 )
                 : (
-                    <div key={keyIndex} onClick={() => handleKeyClick(keyboardKey.key)} className={`${keyboardKey.key.length > 1 ? 'kb-button large' : 'kb-button'} ${keyboardKey.colorClass}`}>{keyboardKey.key}</div>
+                    <div
+                        key={keyIndex}
+                        onClick={() => handleKeyClick(keyboardKey.key)}
+                        className={`${keyboardKey.key.length > 1 ? 'kb-button large' : 'kb-button'} ${keyboardKey.colorClass}`}
+                    >{keyboardKey.key}</div>
                 )
         })}
     </div>
