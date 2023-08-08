@@ -248,11 +248,11 @@ const App = () => {
       const letter: string = word[i];
 
       const numOfGreens: number = greenLetters.filter((gLetter: ILetter) => gLetter.letter === letter).length;
-
+      
       const numOfOccurrencesInCorrectWord: number = lettersOccurrencesInCorrectWord[letter] || 0;
           
       const numOfYellows: number = numOfOccurrencesInCorrectWord - numOfGreens;
-
+      
       const inGreenAtDifferentIndex: boolean = greenLetters.some((gLetter: ILetter) => gLetter.letter === letter && gLetter.index !== i);
 
       const inGreenAtSameIndex: boolean = greenLetters.some((gLetter: ILetter) => gLetter.letter === letter && gLetter.index === i);
@@ -275,14 +275,25 @@ const App = () => {
               const duplicatedLetters = yellowLetters.filter((yel: ILetter) => yel.letter === letter);
   
               const letterAtClosestIndex: ILetter = calculateClosestIndex(correctWord.correctWord, duplicatedLetters, letter).smallest;
+              const letterAtLargestIndex: ILetter = calculateClosestIndex(correctWord.correctWord, duplicatedLetters, letter).largest;
               
-              grayLetters.push(...yellowLetters.filter((yel: ILetter) => yel.letter === letter && yel.index !== letterAtClosestIndex.index));
-  
-              const updatedYellowLetters: ILetter[] = [...yellowLetters.filter((yel: ILetter) => (yel.letter !== letter) || (yel.letter === letter && yel.index !== correctWord.correctWord.lastIndexOf(letter))), letterAtClosestIndex];
-  
-              yellowLetters = [...updatedYellowLetters];
-          }
-      }
+              const shouldBeGray: ILetter[] = yellowLetters.filter((yel: ILetter) => (yel.letter === letter && yel.index !== letterAtClosestIndex.index)
+                || (!correctWord.correctWord.includes(yel.letter))
+                || (yel.letter === letter && yel.index === letterAtLargestIndex.index));
+
+              grayLetters.push(...shouldBeGray);
+
+              const otherYellowLetters: ILetter[] = yellowLetters.filter((yel: ILetter) => (yel.letter !== letter));
+              const otherYellowLettersAndSameLettersAtDifferentIndexes: ILetter[] = yellowLetters.filter((yel: ILetter) => (yel.letter !== letter) //fix
+                || (yel.letter === letter && yel.index !== correctWord.correctWord.lastIndexOf(letter)));
+
+              const updatedYellowLetters: ILetter[] = !numOfGreens
+                ? [...otherYellowLettersAndSameLettersAtDifferentIndexes, letterAtClosestIndex, letterAtLargestIndex] ///fix
+                : [...otherYellowLetters, letterAtClosestIndex];
+                
+                yellowLetters = [...updatedYellowLetters];
+              }
+        }
 
       else if (inGreenAtDifferentIndex) grayLetters.push({letter, index: i});
       else if (!correctWord.correctWord.includes(letter)) grayLetters.push({letter, index: i});
@@ -306,11 +317,11 @@ const App = () => {
         };
     });
 
-    const closestIndexUnderZero: ILetterWithDist | undefined = mapIndexesMinusCorrectLetterIndex.find((l: ILetterWithDist) => (l.distFromCorrectIndex === -1) || (l.distFromCorrectLastIndex === -1));
+    const closestIndexUnderZero: ILetterWithDist | undefined = mapIndexesMinusCorrectLetterIndex.find((l: ILetterWithDist) => (l.distFromCorrectIndex === -1));
 
     if (closestIndexUnderZero) {
-      const otherLetter: ILetterWithDist = mapIndexesMinusCorrectLetterIndex.find((l: ILetterWithDist) => (l.distFromCorrectIndex !== -1) || (l.distFromCorrectLastIndex !== -1)) as ILetterWithDist;
-
+      const otherLetter: ILetterWithDist = mapIndexesMinusCorrectLetterIndex.find((l: ILetterWithDist) => (l.distFromCorrectIndex !== -1)) as ILetterWithDist;
+      
       return {
           smallest: {
               letter,
@@ -495,7 +506,7 @@ const App = () => {
 
   const chooseRandomWord = (): void => {
     const randomWord: string = WORDS[Math.floor(Math.random() * WORDS.length)];
-    // const randomWord: string = 'scops';
+    // const randomWord: string = 'spasm';
     console.log("Word: ", randomWord);
 
     setCorrectWord({correctWord: randomWord});
