@@ -173,9 +173,20 @@ const App = () => {
         // WIN
         playAudio(winAudio);
 
+        let delay: number = 0;
+
         const updatedGrid: ITile[][] = grid.grid.map((row: ITile[], rowIdx: number) => {
           if (rowIdx === currentRowIndex.currentRowIndex) {
-            return row.map((tile: ITile) => setColorClass(tile, COLORS.GREEN));
+            return row.map((tile: ITile) => {
+              const updatedTile: ITile = setColorClass(tile, COLORS.GREEN);
+              
+              delay+=0.5;
+
+              return {
+                ...updatedTile,
+                delay
+              }
+            });
           } else return row;
         });
 

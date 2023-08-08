@@ -33,6 +33,7 @@ export interface ITileIndex {
 export interface ITile {
     letter: string;
     colorClass: string;
+    delay?: number | undefined
 }
 
 export interface ILetter {
