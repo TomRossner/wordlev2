@@ -32,6 +32,7 @@ import {
 } from "./interfaces";
 import React from "react";
 import Keyboard from "./components/Keyboard.tsx";
+import Modal from "./components/Modal.tsx";
 
 const App = () => {
   const [correctWord, setCorrectWord] = useState<ICorrectWord>({correctWord: ""});
@@ -192,8 +193,8 @@ const App = () => {
 
         setGrid({grid: updatedGrid});
 
-        setIsGameOver({isGameOver: true});
         setFoundWord({foundWord: true});
+        setIsGameOver({isGameOver: true});
 
         return;
 
@@ -251,7 +252,13 @@ const App = () => {
     };
   };
 
-  const filterYellowLetters = (word: string, greenLetters: ILetter[], lettersOccurrencesInCorrectWord: IOccurrence, lettersOccurrencesInGuessedWord: IOccurrence): {[key: string]: ILetter[]} => {
+  const filterYellowLetters = (
+    word: string,
+    greenLetters: ILetter[],
+    lettersOccurrencesInCorrectWord: IOccurrence,
+    lettersOccurrencesInGuessedWord: IOccurrence
+  ): {[key: string]: ILetter[]} => {
+
     let yellowLetters: ILetter[] = [];
     const grayLetters: ILetter[] = [];
 
@@ -270,36 +277,41 @@ const App = () => {
 
       if (inGreenAtSameIndex) continue;
 
-      else if (numOfYellows && (inGreenAtDifferentIndex || !inGreenAtDifferentIndex)) {
+      else if (numOfYellows) {
           yellowLetters.push({letter, index: i});
 
           // In Guessed Word
-          const quantityOfLetterInYellowsEqualsOccurrencesInGuessedWord: boolean = (yellowLetters.filter((yel: ILetter) => yel.letter === letter).length === lettersOccurrencesInGuessedWord[letter]);
+          const quantityOfLetterInYellowsEqualsOccurrencesInGuessedWord: boolean = yellowLetters.filter((yel: ILetter) => 
+            yel.letter === letter).length === lettersOccurrencesInGuessedWord[letter];
           // In Correct Word
-          const quantityOfLetterInYellowsEqualsOccurrencesInCorrectWord: boolean = (yellowLetters.filter((yel: ILetter) => yel.letter === letter).length === lettersOccurrencesInCorrectWord[letter]);
+          const quantityOfLetterInYellowsEqualsOccurrencesInCorrectWord: boolean = yellowLetters.filter((yel: ILetter) => 
+            yel.letter === letter).length === lettersOccurrencesInCorrectWord[letter];
 
           // Occurrences of letter in Guessed Word larger than or equal 2
-          const occurrencesInGuessedLargerThanOne: boolean = (lettersOccurrencesInGuessedWord[letter] >= 2);
-        
+          const occurrencesInGuessedLargerThanOne: boolean = lettersOccurrencesInGuessedWord[letter] >= 2;
 
-          if ((quantityOfLetterInYellowsEqualsOccurrencesInGuessedWord || quantityOfLetterInYellowsEqualsOccurrencesInCorrectWord) && occurrencesInGuessedLargerThanOne) {
+          if ((quantityOfLetterInYellowsEqualsOccurrencesInGuessedWord || quantityOfLetterInYellowsEqualsOccurrencesInCorrectWord)
+            && occurrencesInGuessedLargerThanOne) {
               const duplicatedLetters = yellowLetters.filter((yel: ILetter) => yel.letter === letter);
   
-              const letterAtClosestIndex: ILetter = calculateClosestIndex(correctWord.correctWord, duplicatedLetters, letter).smallest;
-              const letterAtLargestIndex: ILetter = calculateClosestIndex(correctWord.correctWord, duplicatedLetters, letter).largest;
+              const {
+                smallest: letterAtClosestIndex,
+                largest: letterAtLargestIndex
+              }: {smallest: ILetter, largest: ILetter} = calculateClosestIndex(correctWord.correctWord, duplicatedLetters, letter);
               
-              const shouldBeGray: ILetter[] = yellowLetters.filter((yel: ILetter) => (yel.letter === letter && yel.index !== letterAtClosestIndex.index)
+              const shouldBeGray: ILetter[] = yellowLetters.filter((yel: ILetter) =>
+                (yel.letter === letter && yel.index !== letterAtClosestIndex.index)
                 || (!correctWord.correctWord.includes(yel.letter))
                 || (yel.letter === letter && yel.index === letterAtLargestIndex.index));
 
               grayLetters.push(...shouldBeGray);
 
               const otherYellowLetters: ILetter[] = yellowLetters.filter((yel: ILetter) => (yel.letter !== letter));
-              const otherYellowLettersAndSameLettersAtDifferentIndexes: ILetter[] = yellowLetters.filter((yel: ILetter) => (yel.letter !== letter) //fix
+              const otherYellowLettersAndSameLettersAtDifferentIndexes: ILetter[] = yellowLetters.filter((yel: ILetter) => (yel.letter !== letter)
                 || (yel.letter === letter && yel.index !== correctWord.correctWord.lastIndexOf(letter)));
 
               const updatedYellowLetters: ILetter[] = !numOfGreens
-                ? [...otherYellowLettersAndSameLettersAtDifferentIndexes, letterAtClosestIndex, letterAtLargestIndex] ///fix
+                ? [...otherYellowLettersAndSameLettersAtDifferentIndexes, letterAtClosestIndex, letterAtLargestIndex]
                 : [...otherYellowLetters, letterAtClosestIndex];
                 
                 yellowLetters = [...updatedYellowLetters];
@@ -336,7 +348,9 @@ const App = () => {
       return {
           smallest: {
               letter,
-              index: closestIndexUnderZero ? closestIndexUnderZero.index : otherLetter.index
+              index: closestIndexUnderZero
+                ? closestIndexUnderZero.index
+                : otherLetter.index
           },
           largest: {
               letter: otherLetter?.letter,
@@ -369,11 +383,13 @@ const App = () => {
     const lettersOccurrencesInCorrectWord: {[key: string] : number} = getRepeatedLetters(correctWord.correctWord);
     const lettersOccurrencesInGuessedWord: {[key: string] : number} = getRepeatedLetters(word);
 
-    const greenLetters: ILetter[] = filterGreenLetters(word).greenLetters;
-
-    const yellowLetters: ILetter[] = filterYellowLetters(word, greenLetters, lettersOccurrencesInCorrectWord, lettersOccurrencesInGuessedWord).yellowLetters;
-
-    const grayLetters: ILetter[] = filterYellowLetters(word, greenLetters, lettersOccurrencesInCorrectWord, lettersOccurrencesInGuessedWord).grayLetters;
+    const {greenLetters}: {[key: string]: ILetter[]} = filterGreenLetters(word);
+    const {yellowLetters, grayLetters}: {[key: string]: ILetter[]} = filterYellowLetters(
+      word,
+      greenLetters,
+      lettersOccurrencesInCorrectWord,
+      lettersOccurrencesInGuessedWord
+    );
 
     let updatedGrid: IGrid = grid;
 
@@ -517,6 +533,7 @@ const App = () => {
 
   const chooseRandomWord = (): void => {
     const randomWord: string = WORDS[Math.floor(Math.random() * WORDS.length)];
+    // const randomWord: string = 'octet';
     // const randomWord: string = 'spasm';
     console.log("Word: ", randomWord);
 
@@ -573,6 +590,14 @@ const App = () => {
 
   return (
     <div id="game-container">
+
+      {isGameOver.isGameOver &&
+        <Modal
+          correctWord={correctWord}
+          resetGame={resetGame}
+          foundWord={foundWord}
+        />}
+
       <h1 className="title">Wordle</h1>
 
       <audio ref={audioRef} src={popAudioFilePath} />
@@ -586,27 +611,6 @@ const App = () => {
       </div>
 
       <Grid grid={grid} resetGrid={() => resetGrid(MAX_GUESSES, WORD_LENGTH)} handleRemoveShake={handleRemoveShake}/>
-      
-      <div className="space messages">
-        {isGameOver.isGameOver && !foundWord.foundWord && (
-          <>
-            <p className="message green">
-              The word was {correctWord.correctWord.toUpperCase()}
-            </p>
-            <button onClick={resetGame} id="playAgain" className="reset">
-              Play again
-            </button>
-          </>
-        )}
-        {isGameOver.isGameOver && foundWord.foundWord && (
-          <>
-            <p className="message green">YOU WON!</p>
-            <button onClick={resetGame} id="playAgain" className="reset">
-              Play again
-            </button>
-          </>
-        )}
-      </div>
 
       <Keyboard handleKeyClick={handleKeyClick} keyboard={keyboard}/>
     </div>
