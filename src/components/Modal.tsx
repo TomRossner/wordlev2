@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { ICorrectWord, IFoundWord } from '../interfaces';
 import {RxCross2} from "react-icons/rx";
-
 interface IModalProps {
-    correctWord: ICorrectWord;
-    foundWord: IFoundWord;
+    correctWord: string;
+    foundWord: boolean;
     resetGame: () => void;
 }
 
@@ -17,7 +15,7 @@ const Modal: React.FC<IModalProps> = ({correctWord, resetGame, foundWord}) => {
     }
 
     useEffect(() => {
-        if (foundWord.foundWord) {
+        if (foundWord) {
             setTimeout(() => {
                 setModalOpen(true);
             }, 2500);
@@ -28,13 +26,13 @@ const Modal: React.FC<IModalProps> = ({correctWord, resetGame, foundWord}) => {
     <div id={modalOpen ? 'blur' : ''}>
         {modalOpen && (
             <div id='modal'>
-                <h2>{foundWord.foundWord ? 'AMAZING!' : 'GAME OVER'}</h2>
+                <h2>{foundWord ? 'AMAZING!' : 'GAME OVER'}</h2>
                 <span onClick={handleCloseModal} className='icon'><RxCross2/></span>
                 
                 <p className="message green">
-                    {foundWord.foundWord
+                    {foundWord
                         ? 'You found the word!'
-                        : `The word was ${correctWord.correctWord.toUpperCase()}`}
+                        : `The word was ${correctWord.toUpperCase()}`}
                 </p>
 
                 <button onClick={resetGame} id="playAgain" className="reset">

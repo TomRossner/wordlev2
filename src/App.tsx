@@ -15,19 +15,12 @@ import {
   TILE
 } from "./constants.ts";
 import {
-  ICorrectWord,
-  IErrorMessage,
-  IFoundWord,
-  IGameOver,
-  IGrid,
   IKeyboardKey,
   ILetter,
   ILetterWithDist,
   IOccurrence,
-  IRowIndex,
   ISmallestAndLargestIndexes,
   ITile,
-  ITileIndex,
   IWordsList
 } from "./interfaces";
 import React from "react";
@@ -35,18 +28,18 @@ import Keyboard from "./components/Keyboard.tsx";
 import Modal from "./components/Modal.tsx";
 
 const App = () => {
-  const [correctWord, setCorrectWord] = useState<ICorrectWord>({correctWord: ""});
+  const [correctWord, setCorrectWord] = useState<string>("");
   const [wordsList, setWordsList] = useState<IWordsList>({});
-  const [errorMessage, setErrorMessage] = useState<IErrorMessage | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const [isGameOver, setIsGameOver] = useState<IGameOver>({isGameOver: false});
-  const [foundWord, setFoundWord] = useState<IFoundWord>({foundWord: false});
+  const [isGameOver, setIsGameOver] = useState<boolean>(false);
+  const [foundWord, setFoundWord] = useState<boolean>(false);
 
-  const [grid, setGrid] = useState<IGrid>({grid: []});
+  const [grid, setGrid] = useState<ITile[][]>([]);
   const [keyboard, setKeyboard] = useState<IKeyboardKey[]>([]);
 
-  const [currentRowIndex, setCurrentRowIndex] = useState<IRowIndex>({currentRowIndex: 0});
-  const [currentTileIndex, setCurrentTileIndex] = useState<ITileIndex>({currentTileIndex: 0});
+  const [currentRowIndex, setCurrentRowIndex] = useState<number>(0);
+  const [currentTileIndex, setCurrentTileIndex] = useState<number>(0);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -83,27 +76,27 @@ const App = () => {
   };
 
   const handleEnterKey = (): void => {
-    if (currentTileIndex.currentTileIndex === WORD_LENGTH) {
-      return checkRow(currentRowIndex.currentRowIndex);
-    } else if (currentTileIndex.currentTileIndex < WORD_LENGTH) {
+    if (currentTileIndex === WORD_LENGTH) {
+      return checkRow(currentRowIndex);
+    } else if (currentTileIndex < WORD_LENGTH) {
       playAudio(invalidAudio);
       shakeRow();
-      return setErrorMessage({errorMessage: "Too short"});
+      return setErrorMessage("Too short");
     }
   };
 
   const addLetter = (letter: string): void => {
     playAudio(popAudio);
     
-    setGrid({grid: [
-      ...grid.grid.map((row: ITile[], rowIndex: number) => {
-        if (rowIndex === currentRowIndex.currentRowIndex) {
+    setGrid([
+      ...grid.map((row: ITile[], rowIndex: number) => {
+        if (rowIndex === currentRowIndex) {
           return row.map((tile: ITile , tileIndex: number) => {
             if (
-              tileIndex === currentTileIndex.currentTileIndex &&
-              currentTileIndex.currentTileIndex + 1 <= WORD_LENGTH
+              tileIndex === currentTileIndex &&
+              currentTileIndex + 1 <= WORD_LENGTH
             ) {
-              setCurrentTileIndex({currentTileIndex: currentTileIndex.currentTileIndex + 1});
+              setCurrentTileIndex(currentTileIndex + 1);
               return {
                 ...tile,
                 letter,
@@ -112,16 +105,16 @@ const App = () => {
           });
         } else return row;
       }),
-    ]});
+    ]);
   };
   
   const deleteLetter = (): void => {
-    return setGrid({grid: [
-      ...grid.grid.map((row: ITile[], rowIndex: number) => {
-        if (rowIndex === currentRowIndex.currentRowIndex) {
+    return setGrid([
+      ...grid.map((row: ITile[], rowIndex: number) => {
+        if (rowIndex === currentRowIndex) {
           return row.map((tile: ITile, tileIndex: number) => {
-            if (tileIndex === currentTileIndex.currentTileIndex - 1) {
-              setCurrentTileIndex({currentTileIndex: currentTileIndex.currentTileIndex - 1});
+            if (tileIndex === currentTileIndex - 1) {
+              setCurrentTileIndex(currentTileIndex - 1);
               return {
                 ...tile, 
                 letter: ""
@@ -130,7 +123,7 @@ const App = () => {
           });
         } else return row;
       }),
-    ]});
+    ]);
   };
 
   const playAudio = (audioFile: HTMLAudioElement): Promise<void> => {
@@ -138,8 +131,8 @@ const App = () => {
   };
 
   const shakeRow = (): void => {
-    setGrid({grid: grid.grid.map((row: ITile[], rowIndex: number) => {
-      if (rowIndex === currentRowIndex.currentRowIndex) {
+    setGrid(grid.map((row: ITile[], rowIndex: number) => {
+      if (rowIndex === currentRowIndex) {
         return row.map((tile: ITile) => {
           if (tile.letter) {
             return {
@@ -149,12 +142,12 @@ const App = () => {
           } else return tile;
         })
       } else return row;
-    })})
+    }))
   };
   
   const handleRemoveShake = (): void => {
-    setGrid({grid: grid.grid.map((row: ITile[], rowIndex: number) => {
-      if (rowIndex === currentRowIndex.currentRowIndex) {
+    setGrid(grid.map((row: ITile[], rowIndex: number) => {
+      if (rowIndex === currentRowIndex) {
         return row.map((tile: ITile) => {
           return {
             ...tile,
@@ -162,22 +155,22 @@ const App = () => {
           }
         })
       } else return row;
-    })})
+    }))
   };
 
   const checkRow = (rowIndex: number): void => {
-    const word: string = grid.grid[rowIndex].map((tile: ITile) => tile.letter).join("");
+    const word: string = grid[rowIndex].map((tile: ITile) => tile.letter).join("");
     const guessedWord: string = word.toLowerCase();
 
     if (wordsList[guessedWord]) {
-      if (guessedWord === correctWord.correctWord) {
+      if (guessedWord === correctWord) {
         // WIN
         playAudio(winAudio);
 
         let delay: number = 0;
 
-        const updatedGrid: ITile[][] = grid.grid.map((row: ITile[], rowIdx: number) => {
-          if (rowIdx === currentRowIndex.currentRowIndex) {
+        const updatedGrid: ITile[][] = grid.map((row: ITile[], rowIdx: number) => {
+          if (rowIdx === currentRowIndex) {
             return row.map((tile: ITile) => {
               const updatedTile: ITile = setColorClass(tile, COLORS.GREEN);
               
@@ -191,10 +184,10 @@ const App = () => {
           } else return row;
         });
 
-        setGrid({grid: updatedGrid});
+        setGrid(updatedGrid);
 
-        setFoundWord({foundWord: true});
-        setIsGameOver({isGameOver: true});
+        setFoundWord(true);
+        setIsGameOver(true);
 
         return;
 
@@ -203,7 +196,7 @@ const App = () => {
       }
     } else {
       // Word not in list
-      setErrorMessage({errorMessage: "Word not in list"});
+      setErrorMessage("Word not in list");
 
       playAudio(invalidAudio);
 
@@ -218,7 +211,7 @@ const App = () => {
     // Green Letters
     for (let i = 0; i < word.length; i++) {
       const letterAtCurrentIndex: string = word[i];
-      const letterInCorrectWordAtCurrentIndex: string = correctWord.correctWord[i];
+      const letterInCorrectWordAtCurrentIndex: string = correctWord[i];
 
       if (letterAtCurrentIndex === letterInCorrectWordAtCurrentIndex) {
         if (greenLetters.some((gl: ILetter) => gl.letter === letterAtCurrentIndex && gl.index !== i)) {
@@ -297,18 +290,18 @@ const App = () => {
               const {
                 smallest: letterAtClosestIndex,
                 largest: letterAtLargestIndex
-              }: {smallest: ILetter, largest: ILetter} = calculateClosestIndex(correctWord.correctWord, duplicatedLetters, letter);
+              }: {smallest: ILetter, largest: ILetter} = calculateClosestIndex(correctWord, duplicatedLetters, letter);
               
               const shouldBeGray: ILetter[] = yellowLetters.filter((yel: ILetter) =>
                 (yel.letter === letter && yel.index !== letterAtClosestIndex.index)
-                || (!correctWord.correctWord.includes(yel.letter))
+                || (!correctWord.includes(yel.letter))
                 || (yel.letter === letter && yel.index === letterAtLargestIndex.index));
 
               grayLetters.push(...shouldBeGray);
 
               const otherYellowLetters: ILetter[] = yellowLetters.filter((yel: ILetter) => (yel.letter !== letter));
               const otherYellowLettersAndSameLettersAtDifferentIndexes: ILetter[] = yellowLetters.filter((yel: ILetter) => (yel.letter !== letter)
-                || (yel.letter === letter && yel.index !== correctWord.correctWord.lastIndexOf(letter)));
+                || (yel.letter === letter && yel.index !== correctWord.lastIndexOf(letter)));
 
               const updatedYellowLetters: ILetter[] = !numOfGreens
                 ? [...otherYellowLettersAndSameLettersAtDifferentIndexes, letterAtClosestIndex, letterAtLargestIndex]
@@ -319,7 +312,7 @@ const App = () => {
         }
 
       else if (inGreenAtDifferentIndex) grayLetters.push({letter, index: i});
-      else if (!correctWord.correctWord.includes(letter)) grayLetters.push({letter, index: i});
+      else if (!correctWord.includes(letter)) grayLetters.push({letter, index: i});
     }
 
     return {
@@ -380,7 +373,7 @@ const App = () => {
   };
 
   const checkLetters = (word: string): void => {
-    const lettersOccurrencesInCorrectWord: {[key: string] : number} = getRepeatedLetters(correctWord.correctWord);
+    const lettersOccurrencesInCorrectWord: {[key: string] : number} = getRepeatedLetters(correctWord);
     const lettersOccurrencesInGuessedWord: {[key: string] : number} = getRepeatedLetters(word);
 
     const {greenLetters}: {[key: string]: ILetter[]} = filterGreenLetters(word);
@@ -391,12 +384,12 @@ const App = () => {
       lettersOccurrencesInGuessedWord
     );
 
-    let updatedGrid: IGrid = grid;
+    let updatedGrid: ITile[][] = grid;
 
     // Green
     for (let g = 0; g < word.length; g++) {
-        updatedGrid.grid = updatedGrid.grid.map((row: ITile[], rowIndex: number) => {
-            if (rowIndex === currentRowIndex.currentRowIndex) {
+        updatedGrid = updatedGrid.map((row: ITile[], rowIndex: number) => {
+            if (rowIndex === currentRowIndex) {
                 return row.map((tile: ITile, tileIndex: number) => {
                     if (greenLetters.some((gl: ILetter) => gl.index === tileIndex)) {
                         
@@ -409,8 +402,8 @@ const App = () => {
 
     // Yellow
     for (let y = 0; y < word.length; y++) {
-        updatedGrid.grid = updatedGrid.grid.map((row: ITile[], rowIndex: number) => {
-            if (rowIndex === currentRowIndex.currentRowIndex) {
+        updatedGrid = updatedGrid.map((row: ITile[], rowIndex: number) => {
+            if (rowIndex === currentRowIndex) {
                 return row.map((tile: ITile, tileIndex: number) => {
                     if (yellowLetters.some((yl: ILetter) => yl.index === tileIndex)) {
                         
@@ -423,8 +416,8 @@ const App = () => {
 
     // Gray
     for (let g = 0; g < word.length; g++) {
-        updatedGrid.grid = updatedGrid.grid.map((row: ITile[], rowIndex: number) => {
-            if (rowIndex === currentRowIndex.currentRowIndex) {
+        updatedGrid = updatedGrid.map((row: ITile[], rowIndex: number) => {
+            if (rowIndex === currentRowIndex) {
                 return row.map((tile: ITile, tileIndex: number) => {
                     if (grayLetters.some((grayL: ILetter) => grayL.index === tileIndex)) {
                         
@@ -446,12 +439,12 @@ const App = () => {
   };
 
   const updateGuess = (): void => {
-    if ((currentRowIndex.currentRowIndex + 1) < MAX_GUESSES) {
-      setCurrentRowIndex({currentRowIndex: currentRowIndex.currentRowIndex + 1});
-      setCurrentTileIndex({currentTileIndex: 0});
+    if ((currentRowIndex + 1) < MAX_GUESSES) {
+      setCurrentRowIndex(currentRowIndex + 1);
+      setCurrentTileIndex(0);
     } else {
       playAudio(gameOverAudio);
-      setIsGameOver({isGameOver: true})
+      setIsGameOver(true)
     }
   };
 
@@ -506,12 +499,12 @@ const App = () => {
   };
 
   const resetGame = (): void => {
-    setIsGameOver({isGameOver: false});
-    setCurrentRowIndex({currentRowIndex: 0});
-    setCurrentTileIndex({currentTileIndex: 0});
-    setFoundWord({foundWord: false});
+    setIsGameOver(false);
+    setCurrentRowIndex(0);
+    setCurrentTileIndex(0);
+    setFoundWord(false);
     chooseRandomWord();
-    setGrid({grid: resetGrid(MAX_GUESSES, WORD_LENGTH)});
+    setGrid(resetGrid(MAX_GUESSES, WORD_LENGTH));
     resetKeyboard();
   };
 
@@ -537,7 +530,7 @@ const App = () => {
     // const randomWord: string = 'spasm';
     console.log("Word: ", randomWord);
 
-    setCorrectWord({correctWord: randomWord});
+    setCorrectWord(randomWord);
   };
 
   // Choose random word
@@ -549,7 +542,7 @@ const App = () => {
   useEffect(() => {
     createWordsList(WORDS);
 
-    setGrid({grid: resetGrid(MAX_GUESSES, WORD_LENGTH)});
+    setGrid(resetGrid(MAX_GUESSES, WORD_LENGTH));
 
     setKeyboard(keyboardLetters.map((kLetter: string) => {
       return {
@@ -572,18 +565,18 @@ const App = () => {
 
   // Error timeout
   useEffect(() => {
-    if (errorMessage?.errorMessage) {
+    if (errorMessage) {
       setTimeout(() => {
-        setErrorMessage({errorMessage: ""});
+        setErrorMessage("");
       }, 3000);
     }
   }, [errorMessage]);
 
   // Handle win
   useEffect(() => {
-    if (isGameOver.isGameOver) {
+    if (isGameOver) {
       document.removeEventListener("keydown", handleKeyDown);
-    } else if(!isGameOver.isGameOver) {
+    } else if(!isGameOver) {
       document.addEventListener("keydown", handleKeyDown);
     }
   }, [isGameOver]);
@@ -591,7 +584,7 @@ const App = () => {
   return (
     <div id="game-container">
 
-      {isGameOver.isGameOver &&
+      {isGameOver &&
         <Modal
           correctWord={correctWord}
           resetGame={resetGame}
@@ -603,9 +596,9 @@ const App = () => {
       <audio ref={audioRef} src={popAudioFilePath} />
       
       <div className="space error">
-        {errorMessage?.errorMessage && (
+        {errorMessage && (
           <p id="message" className="message error">
-            {errorMessage.errorMessage}
+            {errorMessage}
           </p>
         )}
       </div>

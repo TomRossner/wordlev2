@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import Tile from './Tile.tsx';
-import { IGrid, ITile } from '../interfaces';
+import { ITile } from '../interfaces';
 
 interface GridProps {
-    grid: IGrid;
+    grid: ITile[][];
     resetGrid: () => void;
     handleRemoveShake: () => void;
 }
@@ -17,7 +17,7 @@ const Grid: React.FC<GridProps> = ({grid, resetGrid, handleRemoveShake}) => {
 
   return (
     <section id='grid' className='tiles-container'>
-        {grid.grid.map((row: ITile[], rowIndex: number) => {
+        {grid.map((row: ITile[], rowIndex: number) => {
             return (
                 <div key={rowIndex} className='row'>
                     {row.map((tile: ITile, tileIndex: number) => {

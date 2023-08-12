@@ -1,34 +1,34 @@
-export interface ICorrectWord {
-    correctWord: string;
-}
+// export interface ICorrectWord {
+//     correctWord: string;
+// }
 
 export interface IWordsList {
     [key: string] : string;
 }
 
-export interface IErrorMessage {
-    errorMessage: string;
-}
+// export interface IErrorMessage {
+//     errorMessage: string;
+// }
 
-export interface IGameOver {
-    isGameOver: boolean;
-}
+// export interface IGameOver {
+//     isGameOver: boolean;
+// }
 
-export interface IFoundWord {
-    foundWord: boolean;
-}
+// export interface IFoundWord {
+//     foundWord: boolean;
+// }
 
-export interface IGrid {
-    grid: ITile[][];
-}
+// export interface IGrid {
+//     grid: ITile[][];
+// }
 
-export interface IRowIndex {
-    currentRowIndex: number;
-}
+// export interface IRowIndex {
+//     currentRowIndex: number;
+// }
 
-export interface ITileIndex {
-    currentTileIndex: number;
-}
+// export interface ITileIndex {
+//     currentTileIndex: number;
+// }
 
 export interface ITile {
     letter: string;
