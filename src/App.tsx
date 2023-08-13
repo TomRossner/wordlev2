@@ -21,7 +21,6 @@ import {
   IOccurrence,
   ISmallestAndLargestIndexes,
   ITile,
-  IWordsList
 } from "./interfaces";
 import React from "react";
 import Keyboard from "./components/Keyboard.tsx";
@@ -29,7 +28,7 @@ import Modal from "./components/Modal.tsx";
 
 const App = () => {
   const [correctWord, setCorrectWord] = useState<string>("");
-  const [wordsList, setWordsList] = useState<IWordsList>({});
+  const [wordsList, setWordsList] = useState<Set<string> | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
@@ -44,13 +43,7 @@ const App = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const createWordsList = (arrOfWords: string[]) => {
-    const words: {[key: string] : string} = {};
-
-    for (let word of arrOfWords) {
-      if (!wordsList[word]) {
-        words[word] = word;
-      }
-    }
+    const words: Set<string> = new Set(arrOfWords);
 
     return setWordsList(words);
   };
@@ -162,7 +155,7 @@ const App = () => {
     const word: string = grid[rowIndex].map((tile: ITile) => tile.letter).join("");
     const guessedWord: string = word.toLowerCase();
 
-    if (wordsList[guessedWord]) {
+    if (wordsList?.has(guessedWord)) {
       if (guessedWord === correctWord) {
         // WIN
         playAudio(winAudio);

@@ -1,7 +1,3 @@
-export interface IWordsList {
-    [key: string] : string;
-}
-
 export interface ITile {
     letter: string;
     colorClass: string;
