@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/wordlev2/static/css/main.86742d01.css",
-    "main.js": "/wordlev2/static/js/main.214f3e2c.js",
+    "main.css": "/wordlev2/static/css/main.3c57dd77.css",
+    "main.js": "/wordlev2/static/js/main.3d5750f3.js",
     "index.html": "/wordlev2/index.html",
-    "main.86742d01.css.map": "/wordlev2/static/css/main.86742d01.css.map",
-    "main.214f3e2c.js.map": "/wordlev2/static/js/main.214f3e2c.js.map"
+    "main.3c57dd77.css.map": "/wordlev2/static/css/main.3c57dd77.css.map",
+    "main.3d5750f3.js.map": "/wordlev2/static/js/main.3d5750f3.js.map"
   },
   "entrypoints": [
-    "static/css/main.86742d01.css",
-    "static/js/main.214f3e2c.js"
+    "static/css/main.3c57dd77.css",
+    "static/js/main.3d5750f3.js"
   ]
 }
