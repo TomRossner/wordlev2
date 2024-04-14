@@ -500,6 +500,7 @@ const App = () => {
     chooseRandomWord();
     setGrid(resetGrid(MAX_GUESSES, WORD_LENGTH));
     resetKeyboard();
+    setHasClosedModal(false);
   };
 
   const resetGrid = (rows: number, cols: number): ITile[][] => {
