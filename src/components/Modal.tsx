@@ -4,14 +4,16 @@ interface IModalProps {
     correctWord: string;
     foundWord: boolean;
     resetGame: () => void;
+    setHasClosedModal: (arg: boolean) => void;
 }
 
-const Modal: React.FC<IModalProps> = ({correctWord, resetGame, foundWord}) => {
+const Modal = ({correctWord, resetGame, foundWord, setHasClosedModal}: IModalProps) => {
 
     const [modalOpen, setModalOpen] = useState(false);
 
     const handleCloseModal = (): void => {
         setModalOpen(false);
+        setHasClosedModal(true);
     }
 
     useEffect(() => {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Grid from "./components/Grid.tsx";
 import { WORDS } from "./words.ts";
 import {
@@ -22,7 +22,6 @@ import {
   ISmallestAndLargestIndexes,
   ITile,
 } from "./interfaces";
-import React from "react";
 import Keyboard from "./components/Keyboard.tsx";
 import Modal from "./components/Modal.tsx";
 
@@ -36,6 +35,8 @@ const App = () => {
 
   const [grid, setGrid] = useState<ITile[][]>([]);
   const [keyboard, setKeyboard] = useState<IKeyboardKey[]>([]);
+
+  const [hasClosedModal, setHasClosedModal] = useState<boolean>(false);
 
   const [currentRowIndex, setCurrentRowIndex] = useState<number>(0);
   const [currentTileIndex, setCurrentTileIndex] = useState<number>(0);
@@ -569,7 +570,7 @@ const App = () => {
   useEffect(() => {
     if (isGameOver) {
       document.removeEventListener("keydown", handleKeyDown);
-    } else if(!isGameOver) {
+    } else if (!isGameOver) {
       document.addEventListener("keydown", handleKeyDown);
     }
   }, [isGameOver]);
@@ -582,6 +583,7 @@ const App = () => {
           correctWord={correctWord}
           resetGame={resetGame}
           foundWord={foundWord}
+          setHasClosedModal={setHasClosedModal}
         />}
 
       <h1 className="title">Wordle</h1>
@@ -599,6 +601,11 @@ const App = () => {
       <Grid grid={grid} resetGrid={() => resetGrid(MAX_GUESSES, WORD_LENGTH)} handleRemoveShake={handleRemoveShake}/>
 
       <Keyboard handleKeyClick={handleKeyClick} keyboard={keyboard}/>
+      {isGameOver && hasClosedModal && (
+        <button onClick={resetGame} id="playAgain" className="reset lg">
+            Play again
+        </button>
+      )}
     </div>
   );
 }

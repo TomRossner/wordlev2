@@ -75,7 +75,7 @@ body{
 }
 
 .tiles-container{
-    margin: 3rem auto 1rem auto;
+    margin: 1.5rem auto 1rem auto;
     max-width: 320px;
     display: flex;
     flex-direction: column;
@@ -308,6 +308,11 @@ body{
     background-color: rgb(23, 143, 212);
     transition: transform 0.05s;
     margin: 0.5rem auto;
+
+    &.lg {
+        width: 90vw;
+        max-width: 300px;
+    }
 }
 
 .reset:hover{

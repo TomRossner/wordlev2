@@ -6,7 +6,7 @@ interface TileProps {
   handleRemoveShake: () => void; 
 }
 
-const Tile: React.FC<TileProps> = ({tile, handleRemoveShake}) => {
+const Tile = ({tile, handleRemoveShake}: TileProps) => {
   const winAnimation: string = `win 1.2s forwards`;
   const animationDelay: string = tile.delay ? `${tile.delay * 0.2}s` : '';
 

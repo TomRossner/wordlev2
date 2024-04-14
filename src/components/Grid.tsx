@@ -8,7 +8,7 @@ interface GridProps {
     handleRemoveShake: () => void;
 }
 
-const Grid: React.FC<GridProps> = ({grid, resetGrid, handleRemoveShake}) => {
+const Grid = ({grid, resetGrid, handleRemoveShake}: GridProps) => {
 
     // Create grid
     useEffect(() => {

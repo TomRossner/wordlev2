@@ -6,7 +6,7 @@ interface KeyboardProps {
     handleKeyClick: (letter: string) => void;
 }
 
-const Keyboard: React.FC<KeyboardProps> = ({keyboard, handleKeyClick}) => {
+const Keyboard = ({keyboard, handleKeyClick}: KeyboardProps) => {
   return (
     <div id='keyboard' className='keyboard'>
         {keyboard.map((keyboardKey: IKeyboardKey, keyIndex: number) => {
