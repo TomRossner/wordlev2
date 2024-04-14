@@ -601,7 +601,7 @@ const App = () => {
       <Grid grid={grid} resetGrid={() => resetGrid(MAX_GUESSES, WORD_LENGTH)} handleRemoveShake={handleRemoveShake}/>
 
       <Keyboard handleKeyClick={handleKeyClick} keyboard={keyboard}/>
-      {isGameOver && hasClosedModal && (
+      {hasClosedModal && (
         <button onClick={resetGame} id="playAgain" className="reset lg">
             Play again
         </button>

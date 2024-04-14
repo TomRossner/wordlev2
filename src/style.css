@@ -349,7 +349,7 @@ body{
     flex-direction: column;
     justify-content: space-around;
     align-items: center;
-    top: 15vh;
+    top: 25vh;
     background-color: rgb(43, 43, 43);
     border: 2px solid rgb(80, 80, 80);
     border-radius: 3px;
