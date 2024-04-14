@@ -18,11 +18,6 @@ body{
     position: relative;
 }
 
-.title{
-    font-family: "Ubuntu", sans-serif;
-    font-size: 1.2rem;
-}
-
 .title-play-again{
     display: flex;
     justify-content: space-around;
@@ -42,7 +37,7 @@ body{
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     position: relative;
-    padding: 0 0.5rem 0 0;
+    padding: 1.5rem 0.5rem 0 0;
 }
 
 .tile.green{
@@ -595,5 +590,10 @@ footer #linkedinIcon.bi.bi-linkedin{
 
     .kb-button:active{
         background-color: rgb(50, 50, 50);
+    }
+
+    .reset.lg {
+        width: 100%;
+        max-width: 95vw;
     }
 }
